@@ -4,6 +4,7 @@ import axiosInstance from "../../utils/axios";
 import { updateUser } from "../../features/users/usersSlice";
 import Navbar from "../navbar/Navbar";
 import UploadImage from "./UploadImage";
+import { toast } from "sonner";
 
 export default function EditUserProfile() {
   const dispatch = useDispatch();
@@ -34,20 +35,21 @@ export default function EditUserProfile() {
     e.preventDefault();
 
     if (!formData.name || !formData.email) {
-      alert("Please fill out all fields");
+      toast.error("Please fill out all fields");
       return;
     }
 
     try {
       setLoading(true);
-
+      console.log("sending profile update req by user id : ", user?._id);
+      
       const res = await axiosInstance.patch(`/user/update-profile`, {
         id: user?._id,
         ...formData,
       });
 
       dispatch(updateUser(res.data));
-      alert("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
     } catch (error) {
       console.error("Update profile error:", error);
       setError("Failed to update profile. Please try again.");

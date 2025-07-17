@@ -1,15 +1,17 @@
 const mongoose = require("mongoose");
 
-// make the email id unique always
-
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+    trim: true,
   },
   email: {
     type: String,
     required: true,
+    unique: true,
+    lowercase: true,
+    trim: true,
   },
   password: {
     type: String,
@@ -26,10 +28,14 @@ const userSchema = new mongoose.Schema({
   profileImage: {
     type: String,
   },
+  refreshToken: {
+    type: String, // renamed for clarity
+  },
   createdAt: {
     type: Date,
-    default: Date.now(),
-  },
+    // no Date.now() because it will call the fn every time when the fn modal loaded
+    default: Date.now,
+  }
 });
-
-module.exports = mongoose.model("user", userSchema);
+// always use Capital to start the name
+module.exports = mongoose.model("User", userSchema);

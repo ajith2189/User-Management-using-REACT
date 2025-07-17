@@ -2,22 +2,25 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../utils/axios";
-import { 
-  updateUser, 
-  clearSelectedUser, 
-  selectSelectedUser, 
-  selectUserById 
-} from "../../features/users/usersSlice"; // Adjust path as needed
+import {
+  updateUser,
+  clearSelectedUser,
+  selectSelectedUser,
+  selectUserById,
+} from "../../features/users/usersSlice";
+import { toast } from "sonner";
+import useDocumentTitle from "../../hooks/useDocumentTitle";
 
 export default function EditUser() {
+  useDocumentTitle("Edit user")
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   // Get data from Redux store
   const selectedUser = useSelector(selectSelectedUser);
-  const userFromStore = useSelector(state => selectUserById(state, id));
-  
+  const userFromStore = useSelector((state) => selectUserById(state, id));
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
@@ -28,20 +31,18 @@ export default function EditUser() {
   useEffect(() => {
     const initializeUserData = async () => {
       try {
-        // Priority: selectedUser > userFromStore > API call
         let userData = null;
-        
+
         if (selectedUser && selectedUser._id === id) {
-          userData = selectedUser;
-        } else if (userFromStore) {
+          userData = selectedUser;// used when i already clicked edit so the data is already in my store
+        } else if (userFromStore) {//check the user in the store
           userData = userFromStore;
         } else {
-          // Fallback to API call if user data not in store
           setLoading(true);
           const res = await axiosInstance.get(`/admin/update/${id}`);
           userData = res.data;
         }
-        
+
         if (userData) {
           setFormData({
             name: userData.name || "",
@@ -61,7 +62,6 @@ export default function EditUser() {
       initializeUserData();
     }
 
-    // Cleanup: Clear selected user when component unmounts
     return () => {
       dispatch(clearSelectedUser());
     };
@@ -74,31 +74,26 @@ export default function EditUser() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.email) {
-      alert("Please fill out all fields");
+      toast.error("Please fill out all fields");
       return;
     }
 
     try {
       console.log("Admin is trying to edit user with ID:", id);
-      
+
       const res = await axiosInstance.patch(`/admin/update/${id}`, formData);
-      
+
       console.log("User updated successfully:", res.data);
-      
-      // Update Redux store
-      dispatch(updateUser({ 
-        id: id, 
-        userData: formData 
-      }));
-      
-      alert("User updated successfully!");
+
+      dispatch(updateUser({ id: id, userData: formData }));
+
+      toast.success("User updated successfully!");
       navigate("/admin/dashboard");
-      
     } catch (error) {
       console.error("Update user error:", error);
-      alert("Failed to update user. Please try again.");
+      toast.error("Failed to update user. Please try again.");
     }
   };
 
@@ -109,10 +104,10 @@ export default function EditUser() {
 
   if (loading) {
     return (
-      <div style={styles.container}>
-        <div style={styles.loadingContainer}>
-          <div style={styles.spinner}></div>
-          <p>Loading user data...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading user data...</p>
         </div>
       </div>
     );
@@ -120,10 +115,13 @@ export default function EditUser() {
 
   if (error) {
     return (
-      <div style={styles.container}>
-        <div style={styles.errorContainer}>
-          <p style={styles.errorText}>{error}</p>
-          <button onClick={handleCancel} style={styles.button}>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-red-600 text-lg">{error}</p>
+          <button
+            onClick={handleCancel}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          >
             Back to Dashboard
           </button>
         </div>
@@ -132,47 +130,57 @@ export default function EditUser() {
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h2 style={styles.title}>Edit User Details</h2>
-        <p style={styles.subtitle}>Update user information</p>
+    <div className="max-w-xl mx-auto mt-12 bg-white p-8 rounded-xl shadow-md border border-gray-200">
+      <div className="mb-6 text-center">
+        <h2 className="text-2xl font-bold text-slate-800">Edit User Details</h2>
+        <p className="text-sm text-gray-500">Update user information</p>
       </div>
-      
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <div style={styles.inputGroup}>
-          <label style={styles.label}>Name</label>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Name */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Name
+          </label>
           <input
             type="text"
             name="name"
             placeholder="Enter user name"
             value={formData.name}
             onChange={handleChange}
-            style={styles.input}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
-        
-        <div style={styles.inputGroup}>
-          <label style={styles.label}>Email</label>
+
+        {/* Email */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Email
+          </label>
           <input
             type="email"
             name="email"
             placeholder="Enter user email"
             value={formData.email}
             onChange={handleChange}
-            style={styles.input}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
-        
-        <div style={styles.buttonContainer}>
-          <button type="submit" style={styles.submitButton}>
+
+        {/* Buttons */}
+        <div className="flex gap-4 pt-4">
+          <button
+            type="submit"
+            className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+          >
             Save Changes
           </button>
-          <button 
-            type="button" 
-            onClick={handleCancel} 
-            style={styles.cancelButton}
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="flex-1 bg-gray-500 text-white py-2 rounded hover:bg-gray-600 transition"
           >
             Cancel
           </button>
@@ -181,124 +189,3 @@ export default function EditUser() {
     </div>
   );
 }
-
-const styles = {
-  container: {
-    maxWidth: '600px',
-    margin: '50px auto',
-    padding: '30px',
-    backgroundColor: 'white',
-    borderRadius: '12px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-  },
-  header: {
-    marginBottom: '30px',
-    textAlign: 'center',
-  },
-  title: {
-    fontSize: '24px',
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: '8px',
-  },
-  subtitle: {
-    fontSize: '16px',
-    color: '#6b7280',
-    margin: '0',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '20px',
-  },
-  inputGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
-  },
-  label: {
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#374151',
-  },
-  input: {
-    padding: '12px',
-    fontSize: '16px',
-    border: '1px solid #d1d5db',
-    borderRadius: '8px',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-  },
-  buttonContainer: {
-    display: 'flex',
-    gap: '12px',
-    marginTop: '20px',
-  },
-  submitButton: {
-    flex: 1,
-    padding: '12px 24px',
-    fontSize: '16px',
-    fontWeight: '500',
-    backgroundColor: '#3b82f6',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s',
-  },
-  cancelButton: {
-    flex: 1,
-    padding: '12px 24px',
-    fontSize: '16px',
-    fontWeight: '500',
-    backgroundColor: '#6b7280',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s',
-  },
-  loadingContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: '40px',
-  },
-  spinner: {
-    width: '32px',
-    height: '32px',
-    border: '3px solid #e5e7eb',
-    borderTop: '3px solid #3b82f6',
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite',
-    marginBottom: '16px',
-  },
-  errorContainer: {
-    textAlign: 'center',
-    padding: '40px',
-  },
-  errorText: {
-    color: '#ef4444',
-    fontSize: '16px',
-    marginBottom: '20px',
-  },
-  button: {
-    padding: '12px 24px',
-    fontSize: '16px',
-    backgroundColor: '#3b82f6',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-  },
-};
-
-// Add CSS for spinner animation
-const styleSheet = document.createElement('style');
-styleSheet.textContent = `
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
-document.head.appendChild(styleSheet);

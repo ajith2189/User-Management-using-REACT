@@ -8,13 +8,13 @@ const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Access Denied. No token provided.' });
+    return res.status(401).json({ message: 'Access Denied. No accessToken provided.' });
   }
 
-  const token = authHeader.split(' ')[1];
+  const accessToken = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+    const user = await User.findById(decoded.id.id);
 
     if (!user || user.isDeleted) {
       return res.status(401).json({ message: 'User no longer available' });
@@ -24,7 +24,7 @@ const verifyToken = async (req, res, next) => {
     next();
   } catch (error) {
     console.log(error);
-    return res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Invalid accessToken' });
   }
 };
 
@@ -32,13 +32,13 @@ const verifyAdminToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Access denied, token not provided' });
+    return res.status(401).json({ message: 'Access denied, accessToken not provided' });
   }
 
-  const token = authHeader.split(' ')[1];
+  const accessToken = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
     const user = await User.findById(decoded._id);
 
     if (!user || !user.isAdmin) {
@@ -48,7 +48,7 @@ const verifyAdminToken = async (req, res, next) => {
     next();
   } catch (error) {
     console.log(error);
-    return res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Invalid accessToken' });
   }
 };
 

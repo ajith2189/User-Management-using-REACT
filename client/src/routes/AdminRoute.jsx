@@ -5,12 +5,11 @@ export default function AdminRoute({ children }) {
   const { user } = useSelector((state) => state.auth);
 
   if (!user) {
-    return <Navigate to="/admin/login" />;
-  }
-
-  if (!user.isAdmin) {
     return <Navigate to="/" />;
   }
 
+  if (!user.isAdmin) {
+    return <Navigate to="/user/login" />;
+  }
   return children;
 }

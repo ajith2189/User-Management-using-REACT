@@ -4,6 +4,7 @@ import noProfile from "../../assets/noprofile.png";
 import { useSelector, useDispatch } from "react-redux";
 import { updateProfileImage } from "../../features/auth/authSlice"; // Import the action
 import axiosInstance from "../../utils/axios";
+import { toast } from "sonner";
 
 export default function UploadImage() {
   const [imageUrl, setImageUrl] = useState(null);
@@ -17,7 +18,7 @@ export default function UploadImage() {
     if (!file) return;
 
     if (!user || !user.email) {
-      alert("User not found. Please login again.");
+      toast.error("User not found. Please login again.");
       return;
     }
 
@@ -49,15 +50,15 @@ export default function UploadImage() {
         profileImage: imageUrl,
       });
 
-      console.log("Backend response:", response.data);
+      console.log("image is saving :", response.data);
 
       // Update Redux store with new image URL
       dispatch(updateProfileImage(imageUrl));
 
-      alert("Profile image updated!");
+      toast.success("Profile image updated!");
     } catch (err) {
       console.error("Upload failed:", err);
-      alert("Image upload failed. Try again.");
+      toast.error("Image upload failed. Try again.");
     }
   };
 

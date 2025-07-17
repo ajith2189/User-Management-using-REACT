@@ -1,6 +1,6 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
-const generateAccessToken = require("../utils/generateAccessToken");
+const { generateAccessToken } = require("../utils/generateToken");
 const hashPassword = require("../utils/hashPassword");
 
 const loginAdmin = async (req, res) => {
@@ -8,6 +8,7 @@ const loginAdmin = async (req, res) => {
 
   try {
     const { email, password } = req.body;
+    
 
     // Basic input validation
     if (!email || !password) {
@@ -18,6 +19,8 @@ const loginAdmin = async (req, res) => {
 
     // Find user
     const admin = await User.findOne({ email });
+    console.log("admin data recieved from mongo",admin);
+    
 
     if (!admin) {
       return res.status(404).json({ message: "User not found" });
@@ -35,16 +38,16 @@ const loginAdmin = async (req, res) => {
     }
 
     // Generate JWT
-    const token = generateAccessToken(admin._id);
-    console.log("admin response send");
+    const accessToken = generateAccessToken({ id: admin._id });
+    console.log("access token in login controller :", accessToken);
     return res.status(200).json({
       user: {
-      name: admin.name,
-      email: admin.email,
-      profileImage: admin.profileImage,
-      isAdmin : admin.isAdmin
-    },
-      token,
+        name: admin.name,
+        email: admin.email,
+        profileImage: admin?.profileImage || null,
+        isAdmin: admin.isAdmin,
+      },
+      accessToken,
     });
   } catch (error) {
     console.error("Login error:", error);
@@ -57,10 +60,25 @@ const getAllUsers = async (req, res) => {
 
   try {
     const users = await User.find().sort({ createdAt: -1 });
-    return res.status(200).json( users );
+    console.log(users);
+    return res.status(200).json(users);
+    
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }
+};
+
+const searchUser = async (req, res) => {
+  const searchTerm = req.query.searchTerm;
+
+  const users = await User.find({
+    $or: [
+      { name: { $regex: searchTerm, $options: "i" } },
+      { email: { $regex: searchTerm, $options: "i" } },
+    ],
+  });
+
+  res.json( users );
 };
 
 const updateUser = async (req, res) => {
@@ -70,9 +88,7 @@ const updateUser = async (req, res) => {
 
     // Basic input validation
     if (!name || !email) {
-      return res
-        .status(400)
-        .json({ message: "name or email is invalid" });
+      return res.status(400).json({ message: "name or email is invalid" });
     }
 
     // Check if user exists
@@ -125,7 +141,7 @@ const addUser = async (req, res) => {
   }
 };
 
-const deleteUser = async (req,res) => {
+const deleteUser = async (req, res) => {
   try {
     const { id } = req.params; // while receiving id user params instead of body
 
@@ -138,4 +154,11 @@ const deleteUser = async (req,res) => {
   }
 };
 
-module.exports = { loginAdmin, getAllUsers, updateUser, addUser, deleteUser };
+module.exports = {
+  loginAdmin,
+  getAllUsers,
+  updateUser,
+  addUser,
+  deleteUser,
+  searchUser,
+};

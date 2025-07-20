@@ -9,7 +9,7 @@ import {
   Filter,
   MoreHorizontal,
   RefreshCw,
-} from "lucide-react";
+} from "lucide-react"; // grtting images from lucid react
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axios";
 import { debounce } from "lodash";

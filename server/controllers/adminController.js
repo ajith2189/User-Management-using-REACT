@@ -5,7 +5,7 @@ const hashPassword = require("../utils/hashPassword");
 
 const loginAdmin = async (req, res) => {
   console.log("admin login called");
-
+// try
   try {
     const { email, password } = req.body;
     

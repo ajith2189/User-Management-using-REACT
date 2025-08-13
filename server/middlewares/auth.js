@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const dotenv = require('dotenv');
-// this is a middel ware and 
+// this is a middel ware and the most
 
 dotenv.config();
 

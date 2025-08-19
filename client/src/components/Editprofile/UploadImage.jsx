@@ -6,7 +6,7 @@ import { updateProfileImage } from "../../features/auth/authSlice"; // Import th
 import axiosInstance from "../../utils/axios";
 import { toast } from "sonner";
 
-//ipmp
+//importitg all the files which are required to uplao
 export default function UploadImage() {
   const [imageUrl, setImageUrl] = useState(null);
   const fileInputRef = useRef();

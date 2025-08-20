@@ -144,7 +144,7 @@ const addUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
-    const { id } = req.params; // while receiving id user params instead of body
+    const { id } = req.params; // while receiving id user params instead of body are
 
     await User.findByIdAndDelete(id);
 

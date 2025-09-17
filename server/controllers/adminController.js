@@ -2,7 +2,7 @@ const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const { generateAccessToken } = require("../utils/generateToken");
 const hashPassword = require("../utils/hashPassword"); 
-//some are the most important are the mosht
+//some are the most important are the most important and soem are in the corner
 
 const loginAdmin = async (req, res) => {
   console.log("admin login called");

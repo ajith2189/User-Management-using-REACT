@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const dotenv = require('dotenv');
-// this is a middleware which is used to do the auth part
+// this is a middleware which is used to do the auth part of the
 
 dotenv.config();
 

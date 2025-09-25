@@ -5,7 +5,7 @@ const {loginAdmin, getAllUsers, searchUser, updateUser, addUser , deleteUser} = 
 const { verifyToken } = require("../middlewares/auth.js");
 
 
-// POST /admin/register
+// POST /admin/register the user
 admin_router.post("/login", loginAdmin);
 admin_router.get("/allusers",verifyToken,  getAllUsers);
 admin_router.get("/search",searchUser)

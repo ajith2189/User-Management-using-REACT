@@ -27,7 +27,7 @@ const registerUser = async (req, res) => {
       });
     }
 
-    // Hash the password with a salt
+    // Hash the password with a salt are in the most interesting 
     const saltRounds = 10;
     const salt = await bcrypt.genSalt(saltRounds);
     const hashedPassword = await bcrypt.hash(password, salt);
